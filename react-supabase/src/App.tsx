@@ -1,8 +1,16 @@
+import { AppFooter, AppHeader } from "./components/common"
+import { ThemeProvider } from "@/components/theme-provider"
 
 function App() {
 
   return (
-    <div>App화면</div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="page">
+        <AppHeader />
+        <div className="container"></div>
+        <AppFooter />
+      </div>
+    </ThemeProvider>
   )
 }
 
