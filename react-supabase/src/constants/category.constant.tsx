@@ -32,3 +32,27 @@ export const CLASS_CATEGORY = [
     icon: <Goal />
   },
 ]
+
+export const TOPIC_CATEGORY = [
+    {
+    id: 1,
+    label: '인문학',
+    category: 'humanity',
+  },
+    {
+    id: 2,
+    label: '스타트업',
+    category: 'start-up',
+
+  },
+    {
+    id: 3,
+    label: 'IT',
+    category: 'programming',
+  },
+    {
+    id: 4,
+    label: '서비스 전략 기획',
+    category: 'planning',
+  },
+]
