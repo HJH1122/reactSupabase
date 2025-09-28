@@ -26,3 +26,5 @@ export {
   FormMessage,
   FormField,
 } from './form'
+
+export {Checkbox} from './checkbox'
