@@ -8,6 +8,7 @@ import SignIn from './pages/sign-in'
 import RootLayout from './pages/layout.tsx'
 import { ThemeProvider } from './components/theme-provider.tsx'
 import CreateTopic from './pages/topics/create.tsx'
+import { Toaster } from './components/ui/sonner.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
           </Route>
         </Routes> 
       </BrowserRouter>
+      <Toaster richColors position='top-center'/>
     </ThemeProvider>
   </StrictMode>,
 )
