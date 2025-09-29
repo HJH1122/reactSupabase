@@ -4,7 +4,6 @@ import { SkeletonHotTopic, SkeletonNewTopic } from "../components/skeleton"
 import { Button } from "../components/ui"
 import { PencilLine } from "lucide-react"
 
-
 function App() {
   const navigate = useNavigate();
 
