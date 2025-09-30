@@ -60,20 +60,35 @@ export default function SignUp() {
       }
 
       try{
-        const { data, error } = await supabase.auth.signUp({
+        const { data:{user, session}, error } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
           
         });
 
         if(error){
-
+          toast.error(error.message);
           return;
         }
 
-        if(data){
-          toast.success('회원가입을 완료하였습니다.');
-          navigate('/sign-in');
+        if(user && session){
+          const { data, error } = await supabase
+              .from('user')
+              .insert([
+                { id : user.id, service_agreed: serviceAgreed, privacy_agreed: privacyAgreed, marketing_agreed: marketingAgreed },
+              ])
+              .select()
+
+              if(data){
+                toast.success('회원가입을 완료하였습니다.');
+                navigate('/sign-in');
+              }
+
+              if(error){
+                toast.error(error.message);
+                return;
+              }
+              
         }
       } catch(error){
         console.log(error);
