@@ -6,6 +6,7 @@ import { z } from "zod"
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@/components/ui";
 import { NavLink, useNavigate} from "react-router";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores";
 
 
 const formSchema = z.object({
@@ -28,11 +29,13 @@ export default function SignIn() {
     }
   });
 
+  const setUser = useAuthStore((state) => state.setUser);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) =>{
     console.log('로그인');
 
     try{
-      const {data, error} = await supabase.auth.signInWithPassword({
+      const {data: {user, session}, error} = await supabase.auth.signInWithPassword({
                 email: values.email,
                 password: values.password,
             });
@@ -42,7 +45,13 @@ export default function SignIn() {
             return;
         }
 
-      if (data) {
+      if (user && session) {
+          setUser({
+            id: user.id,
+            email: user.email as string,
+            role: user.role as string,
+          })
+
           toast.success("로그인을 성공하였습니다.");
           navigate("/");
         }
