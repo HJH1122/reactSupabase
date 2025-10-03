@@ -7,7 +7,7 @@ import SignUp from './pages/sign-up'
 import SignIn from './pages/sign-in'
 import RootLayout from './pages/layout.tsx'
 import { ThemeProvider } from './components/theme-provider.tsx'
-import CreateTopic from './pages/topics/create.tsx'
+import CreateTopic from './pages/topics/[topic_id]/create.tsx'
 import { Toaster } from './components/ui/sonner.tsx'
 
 
@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path='/' element={<App/>} />
               <Route path='/sign-up' element={<SignUp/>} />
               <Route path='/sign-in' element={<SignIn/>} />
-              <Route path='/topics/create' element={<CreateTopic/>} />
+              <Route path='/topics/:topicId/create' element={<CreateTopic/>} />
           </Route>
         </Routes> 
       </BrowserRouter>
