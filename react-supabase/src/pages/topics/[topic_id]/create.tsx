@@ -9,6 +9,7 @@ import { ArrowLeft, Asterisk, BookOpenCheck, ImageOff, Save } from "lucide-react
 import { useState } from "react";
 import { useParams } from "react-router";
 import { toast } from "sonner";
+import { nanoid } from "nanoid";
 
 export default function CreateTopic() {
 
@@ -26,14 +27,30 @@ export default function CreateTopic() {
             return;
         }
 
+        let thumbnailUrl: string | null = null;
+        if(thumbnail && thumbnail instanceof File){
+            const fileExt = thumbnail.name.split(".").pop();
+            const fileName = `${nanoid()}.${fileExt}`;
+            const filePath = `topics/${fileName}`;
+
+            const {error: uploadError} = await supabase.storage.from('files').upload(filePath, thumbnail);
+
+            if(uploadError) throw uploadError;
+
+            const {data} = supabase.storage.from('files').getPublicUrl(filePath);
+
+            if(!data) throw new Error('썸네일 Public URL 조회를 실패하였습니다.');
+            thumbnailUrl = data.publicUrl;
+        }
+
         const { data, error } = await supabase
         .from('topic')
         .update([
             {
             title,
-            content,
+            content: JSON.stringify(content),
             category,
-            thumbnail,
+            thumbnail: thumbnailUrl,
             author: user.id,
             },
         ])
