@@ -6,19 +6,46 @@ import { useAuthStore } from "@/stores";
 import type { Block } from "@blocknote/core";
 import { Label } from "@radix-ui/react-label";
 import { ArrowLeft, Asterisk, BookOpenCheck, ImageOff, Save } from "lucide-react";
-import { useState } from "react";
-import { useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
+import { TOPIC_STATUS } from "@/types/topic.type";
 
 export default function CreateTopic() {
 
     const user = useAuthStore((state) => state.user);
     const {id} = useParams();
+    const navigate = useNavigate();
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<Block[]>([]);
     const [category, setCategory] = useState<string>('');
     const [thumbnail, setThumbnail] = useState<File | string | null>(null);
+
+    useEffect(() =>{
+        fetchTopic();
+    }, []);
+
+    const fetchTopic = async() =>{
+        try{
+            const {data: topic, error} = await supabase.from('topic').select('*').eq('id', id);
+
+            if(error){
+                toast.error(error.message);
+                return;
+            }
+
+            if(topic){
+                setTitle(topic[0].title);
+                setContent(JSON.parse(topic[0].content));
+                setCategory(topic[0].category);
+                setThumbnail(topic[0].thumbnail);
+            }
+        }catch(error){
+            console.log(error);
+            throw error;
+        }
+    }
    
     const handleSave = async() =>{
 
@@ -41,6 +68,9 @@ export default function CreateTopic() {
 
             if(!data) throw new Error('썸네일 Public URL 조회를 실패하였습니다.');
             thumbnailUrl = data.publicUrl;
+        }
+        else if(typeof thumbnail === 'string'){
+            thumbnailUrl = thumbnail;
         }
 
         const { data, error } = await supabase
@@ -68,8 +98,55 @@ export default function CreateTopic() {
         }
     }
     const handlePublish = async() => {
-        if(!title || !content || !category || !thumbnail){
-            toast.warning('제목, 본문, 카테고리, 썸네일은 필수값 입니다.');
+        
+        if(!title && !content && !category && !thumbnail){
+            toast.warning('제목, 본문, 카테고리, 썸네일을 기입하세요.');
+            return;
+        }
+
+        let thumbnailUrl: string | null = null;
+        if(thumbnail && thumbnail instanceof File){
+            const fileExt = thumbnail.name.split(".").pop();
+            const fileName = `${nanoid()}.${fileExt}`;
+            const filePath = `topics/${fileName}`;
+
+            const {error: uploadError} = await supabase.storage.from('files').upload(filePath, thumbnail);
+
+            if(uploadError) throw uploadError;
+
+            const {data} = supabase.storage.from('files').getPublicUrl(filePath);
+
+            if(!data) throw new Error('썸네일 Public URL 조회를 실패하였습니다.');
+            thumbnailUrl = data.publicUrl;
+        }
+        else if(typeof thumbnail === 'string'){
+            thumbnailUrl = thumbnail;
+        }
+
+        const { data, error } = await supabase
+        .from('topic')
+        .update([
+            {
+            title,
+            content: JSON.stringify(content),
+            category,
+            thumbnail: thumbnailUrl,
+            author: user.id,
+            status: TOPIC_STATUS.PUBLISH,
+            },
+        ])
+        .eq('id', id)
+        .select()
+
+        if(error){
+            toast.error(error.message);
+            return;
+        }
+
+        if(data){
+            toast.success('토픽을 발행하였습니다.');
+            navigate('/')
+
             return;
         }
     }
@@ -107,7 +184,7 @@ export default function CreateTopic() {
                         <Label className="text-muted-foreground">본문</Label>
                     </div>
                     <Skeleton className="w-full h-100"/>
-                    <AppEditor setContent={setContent}/>
+                    <AppEditor props={content} setContent={setContent}/>
                 </div>
             </section>
             <section className="w-1/4 h-full flex flex-col gap-6">
@@ -120,7 +197,7 @@ export default function CreateTopic() {
                         <Asterisk size={14} className="text-[#F96859]"/>
                         <Label className="text-muted-foreground">카테고리</Label>
                     </div>
-                    <Select onValueChange={(value) => setCategory(value)}>
+                    <Select value={category} onValueChange={(value) => setCategory(value)}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="토픽(주제) 선택" />
                         </SelectTrigger>
