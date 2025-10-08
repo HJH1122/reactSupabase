@@ -8,14 +8,16 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/core/fonts/inter.css";
 import { ko } from "@blocknote/core/locales";
 import type { Block } from "@blocknote/core";
+import { readonly } from "zod";
 
 
 interface Props {
-    props: Block[];
-    setContent: (content: Block[]) => void;
+    props?: Block[];
+    setContent?: (content: Block[]) => void;
+    readonly?: boolean;
 }
 
-export function AppEditor({props, setContent} : Props) {
+export function AppEditor({props, setContent, readonly} : Props) {
     const locale = ko;
 
     // Create a new editor instance
@@ -42,5 +44,9 @@ export function AppEditor({props, setContent} : Props) {
     },[props, editor])
 
     // Render the editor
-    return <BlockNoteView editor={editor} onChange={() => setContent(editor.document)}/>;
+    return <BlockNoteView editor={editor} editable={!readonly} onChange={() => {
+        if(!readonly){
+            setContent?.(editor.document)
+        }
+    }}/>;
 }
