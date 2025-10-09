@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import { AppDraftsDialog, AppSidebar } from "../components/common"
 import { SkeletonHotTopic, SkeletonNewTopic } from "../components/skeleton"
 import { Button } from "../components/ui"
@@ -14,11 +14,30 @@ function App() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const category = searchParams.get('category') || '';
+
   const [topics, setTopics] = useState<Topic[]>([]);
+
+  const handleCategoryChange = (value: string) =>{
+    if(value === category) return;
+
+    if(value === ''){
+      setSearchParams({});
+    }else{
+      setSearchParams({ category: value });
+    }
+
+  };
 
   const fetchTopics = async() =>{
     try{
-      const {data: topics, error} = await supabase.from('topic').select('*').eq('status', 'publish');
+      const query = supabase.from('topic').select('*').eq('status', 'publish');
+
+      if(category && category.trim() !== '') {
+        query.eq('category', category);
+      }
+      const {data: topics, error} = await query;
 
       if(error){
         toast.error(error.message);
@@ -69,7 +88,7 @@ function App() {
 
   useEffect(()=>{
     fetchTopics();
-  },[]);
+  },[category]);
 
   return (
     
@@ -90,8 +109,11 @@ function App() {
               </AppDraftsDialog>
               
             </div>
-            <AppSidebar />
-            <section className="flex-1 flex flex-col gap-12">
+
+            <div className="hidden lg:block lg:min-w-60 lg:w-60 lg:h-full">
+              <AppSidebar category={category} setCategory={handleCategoryChange}/>
+            </div>
+            <section className="w-full lg:w-[calc(100%-264px)] flex flex-col gap-12">
                 <div className="w-full flex flex-col gap-6">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
@@ -100,7 +122,7 @@ function App() {
                     </div>
                     <p className="md:text-base text-muted-foreground">지금 가장 주목받는 주제들을 살펴보고, 다양한 관점의 인사이트를 얻어보세요.</p>
                   </div>
-                  <div className="grid grid-cols-4 gap-6">
+                  <div className="w-full flex items-center gap-6 overflow-auto">
                     <SkeletonHotTopic />
                     <SkeletonHotTopic />
                     <SkeletonHotTopic />
@@ -117,7 +139,7 @@ function App() {
                     <p className="md:text-base text-muted-foreground">새로운 시선으로, 새로운 이야기를 시작하세요. 지금 바로 당신만의 토픽을 작성해보세요.</p>
                   </div>
                   {topics.length > 0 ? (
-                    <div className="min-h-120 grid grid-cols-2 gap-6">
+                    <div className="flex flex-col min-h-120 md:grid md:grid-cols-2 gap-6">
                       {topics
                         .sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                         .map((topic:Topic) => {
