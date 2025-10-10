@@ -69,7 +69,7 @@ export default function TopicDetail() {
                         <Button variant='outline' size='icon' onClick={() => navigate('/')}>
                             <ArrowLeft/>
                         </Button>
-                        {author === user.id && (
+                        {author === user?.id && (
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <Button variant='outline' size='icon' className="!bg-red-800/50">

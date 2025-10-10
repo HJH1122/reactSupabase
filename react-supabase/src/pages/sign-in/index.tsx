@@ -7,6 +7,7 @@ import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 import { NavLink, useNavigate} from "react-router";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores";
+import { useEffect } from "react";
 
 
 const formSchema = z.object({
@@ -30,6 +31,34 @@ export default function SignIn() {
   });
 
   const setUser = useAuthStore((state) => state.setUser);
+
+  useEffect(()=>{
+    const checkSession = async() =>{
+      const {data:{session}} = await supabase.auth.getSession();
+      
+      if(session?.user){
+        setUser({
+          id: session.user.id,
+          email: session.user.email as string,
+          role: session.user.role as string,
+        });
+        navigate('/');
+      }
+    };
+    checkSession();
+  }, []);
+
+  const handleGoogleSignIn = async() =>{
+    const {error} = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {access_type: 'offline', prompt: 'consent'},
+          redirectTo: window.location.origin,
+        },
+    });
+
+    if(error) toast.error(error.message);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) =>{
     console.log('로그인');
@@ -71,7 +100,7 @@ export default function SignIn() {
             <p className="text-muted-foreground">로그인을 위한 정보를 입력해주세요.</p>
           </div>
           <div className="grid gap-3">
-            <Button type="button" variant={"secondary"}>
+            <Button type="button" variant={"secondary"} onClick={handleGoogleSignIn}>
               <img src="/assets/icons/social/google.svg" alt="@GOOGLE_LOGO" className="w-[18px] h-[18px] mr-1"/>
               구글 로그인
             </Button>

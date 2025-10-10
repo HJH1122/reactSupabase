@@ -1,3 +1,4 @@
+import supabase from '@/lib/supabase';
 import {create} from 'zustand'
 import { persist } from "zustand/middleware";
 
@@ -10,12 +11,12 @@ interface User {
 }
 
 interface AuthStore {
-    user: User
+    user: User | null;
 
-    setUser: (newUser: User)=> void;
+    setUser: (newUser: User | null)=> void;
     
     
-    reset: () => void;
+    reset: () => Promise<void>;
 }
 
 
@@ -38,15 +39,18 @@ export const useAuthStore = create<AuthStore>()(
             email: '',
             role: '',
         },
-        setUser:(newUser: User) => set({user : newUser}),
+        setUser:(newUser: User | null) => set({user : newUser}),
 
-        reset: () => {
+        reset: async() => {
+
+                await supabase.auth.signOut();
                 set({
-                    user: { id: "", email: "", role: "" },
-                }),
-                    localStorage.removeItem("auth-storage");
+                    user: null,
+                });
+
+                localStorage.removeItem("auth-storage");
             },
     }),
-    {name: 'auth-storage'}
+    {name: 'auth-storage', partialize:(state) => ({ user: state.user})}
 
 ));

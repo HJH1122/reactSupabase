@@ -54,7 +54,7 @@ function App() {
   }
 
   const handleRoute = async() => {
-    if(!user.id || !user.email || !user.role){
+    if(!user){
       toast.warning('토픽 작성은 로그인 후 가능합니다.');
       return;
     }
@@ -143,7 +143,7 @@ function App() {
                       {topics
                         .sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                         .map((topic:Topic) => {
-                          return <NewTopicCard props={topic}/>;
+                          return <NewTopicCard key={topic.id} props={topic}/>;
                       })}
                     </div>
                   ) : (
