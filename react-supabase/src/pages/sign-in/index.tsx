@@ -53,7 +53,7 @@ export default function SignIn() {
         provider: 'google',
         options: {
           queryParams: {access_type: 'offline', prompt: 'consent'},
-          redirectTo: window.location.origin,
+          redirectTo: `${import.meta.env.VITE_SUPABASE_BASE_URL}/auth/callback`,
         },
     });
 

@@ -30,7 +30,7 @@ export function AppDraftsDialog({children}: Props) {
     const [drafts, setDrafts] = useState<any[]>([]);
 
     const fetchDrafts = async() =>{
-        if(!user) return;
+        if(!user?.id) return;
 
         try{
             const { data: topics, error } = await supabase
@@ -54,8 +54,8 @@ export function AppDraftsDialog({children}: Props) {
 
     useEffect(()=>{
 
-        if(user) fetchDrafts();
-    }, []);
+        if (user?.id) fetchDrafts();
+    }, [user]);
 
     return (
         <Dialog>

@@ -70,12 +70,12 @@ async function findUserById(id: string){
 export function NewTopicCard({props} : Props) {
 
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>('');
+  const [nickname, setNickname] = useState<string>('');
 
   useEffect(()=>{
     async function fetchAuthEmail(){
-      const email = await findUserById(props.author);
-      setEmail(email);
+      const nickname = await findUserById(props.author);
+      setNickname(nickname || '알 수 없는 사용자');
     }
     fetchAuthEmail();
   }, []);
@@ -94,7 +94,7 @@ export function NewTopicCard({props} : Props) {
       </div>
       <Separator />
       <div className="w-full flex items-center justify-between">
-        <p>{email}</p>
+        <p>{nickname}</p>
         <p>{dayjs(props.created_at).format("YYYY. MM. DD")}</p>
       </div>
     </Card>

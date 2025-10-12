@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores"
 import { toast } from "sonner"
 import supabase from "@/lib/supabase"
 import { useEffect, useState } from "react"
-import type { Topic } from "@/types/topic.type"
+import { TOPIC_STATUS, type Topic } from "@/types/topic.type"
 import { NewTopicCard } from "@/components/topics"
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
 
   const fetchTopics = async() =>{
     try{
-      const query = supabase.from('topic').select('*').eq('status', 'publish');
+      const query = supabase.from('topic').select('*').eq('status', TOPIC_STATUS.PUBLISH);
 
       if(category && category.trim() !== '') {
         query.eq('category', category);

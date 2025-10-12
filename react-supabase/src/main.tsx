@@ -11,6 +11,7 @@ import CreateTopic from './pages/topics/[topic_id]/create.tsx'
 import { Toaster } from './components/ui/sonner.tsx'
 import TopicDetail from './pages/topics/[topic_id]/detail.tsx'
 import Portfolio from './pages/portfolio/index.tsx'
+import AuthCallback from './pages/auth/callback.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -19,12 +20,13 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           <Route element={<RootLayout />}>
-              <Route path='/' element={<App/>} />
-              <Route path='/sign-up' element={<SignUp/>} />
-              <Route path='/sign-in' element={<SignIn/>} />
-              <Route path='/topics/:id/create' element={<CreateTopic/>} />
-              <Route path='/topics/:id/detail' element={<TopicDetail/>} />
-              <Route path='/portfolio' element={<Portfolio/>} />
+              <Route index element={<App/>} />
+              <Route path='sign-up' element={<SignUp/>} />
+              <Route path='sign-in' element={<SignIn/>} />
+              <Route path='auth/callback' element={<AuthCallback/>} />
+              <Route path='topics/:id/create' element={<CreateTopic/>} />
+              <Route path='topics/:id/detail' element={<TopicDetail/>} />
+              <Route path='portfolio' element={<Portfolio/>} />
           </Route>
         </Routes> 
       </BrowserRouter>
